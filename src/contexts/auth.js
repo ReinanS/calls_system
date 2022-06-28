@@ -1,61 +1,57 @@
-import { useState, createContext, useEffect } from 'react'
-import firebase from '../services/firebaseConnection'
-import { toast } from 'react-toastify';
+import { useState, createContext, useEffect, useContext } from 'react';
+import { auth } from '../services/firebaseConnection';
+import { 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword,
+    onAuthStateChanged, 
+    signOut
+} from 'firebase/auth';
+
 export const AuthContext = createContext({});
 
-function AuthProvider({ children }) {
+export function AuthProvider({ children }) {
+
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [foto, setFoto] = useState(null);
 
-    useEffect(() => {
-        function loadUser() {
-            const storagedUser = localStorage.getItem("usuarioLogado");
-            if (storagedUser) {
-                setUser(JSON.parse(storagedUser));
-                //setLoading(true);
-            }
-            //setLoading(false);
-        }
-        loadUser();
-    }, []);
-
-    async function signUp(email, password, nome) {
-        setLoading(true);
-        //Criar usario no Firebase baseado no email e senha e Salvador em um banco mysql
-
+    async function signUp(email, password) {
+       return await createUserWithEmailAndPassword(auth, email, password)
     }
 
     async function signIn(email, password) {
-        
-        
-        setLoading(true);
-        //Fazer Login no firebase
-        toast.success('Bem-vindo de volta!!');
-        
+        return await signInWithEmailAndPassword(auth, email, password);
     }
 
-
-    async function signOut() {
-        //Fazer logout no firebase
+    async function logOut() {
+        return await signOut(auth);
     }
 
-    function setLocalUser(data){
-        localStorage.setItem('usuarioLogado', JSON.stringify(data));
-    }
+    useEffect(() => {        
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const value = {
+        user,
+        foto,
+        setUser,
+        setFoto,
+        signUp,
+        signIn,
+        logOut
+    };
 
     return (
-        <AuthContext.Provider value={{
-            signed: !!user,
-            user,
-            signUp,
-            signOut,
-            signIn,
-            loading,
-            setUser,
-            setLocalUser
-        }}>
-            {children}
+        <AuthContext.Provider value={ value }>
+            { children }
         </AuthContext.Provider>
     );
 }
+
+export function useUserAuth() {
+    return useContext(AuthContext);
+}
+
 export default AuthProvider;
