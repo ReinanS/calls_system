@@ -72,8 +72,8 @@ export default function New() {
                         <label>Assunto</label>
                         <select value={assunto} onChange={(e) => setAssunto(e.target.value)}>
                             <option value="SUPORTE">Suporte</option>
-                            <option value="FINANCEIRO">Financeiro</option>
-                            <option value="VISITA">Visita</option>
+                            <option value="DESENVOLVIMENTO">Desenvolvimento</option>
+                            <option value="TELEFONIA">Telefonia</option>
                         </select>
 
                         <label>Status</label>
