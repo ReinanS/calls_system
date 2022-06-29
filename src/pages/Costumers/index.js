@@ -7,6 +7,7 @@ import api from '../../services/api';
 import { getDataAtualFormatada } from '../../utils/utils';
 import EditCostumer from './EditCostumer';
 import './costumers.css'
+import { formataStatus, getDataFormatada } from '../../utils/utils';
 import { useUserAuth } from '../../contexts/auth';
 
 
@@ -24,13 +25,14 @@ export default function Costumers() {
 
 
   useEffect(() => {
-      async function loadClientes() {
-        api
-          .get('/clientes')
-          .then(response => setClientes(response.data));
-      }
       loadClientes();
   }, [ clientes ]);
+
+  async function loadClientes() {
+    api
+      .get('/clientes')
+      .then(response => setClientes(response.data));
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -116,7 +118,7 @@ export default function Costumers() {
                         <td data-label="Cliente">{ cliente.nome }</td>
                         <td data-label="CNPJ">{ cliente.cnpj }</td>
                         <td data-label="Endereço">{ cliente.endereco }</td>
-                        <td data-label="Cadastrado em">{ cliente.dataCadastro }</td>
+                        <td data-label="Cadastrado em">{ getDataFormatada(cliente.dataCadastro) }</td>
                         <td data-label="#">
                           <button 
                             onClick={ () => { excluir(cliente.id) } } 

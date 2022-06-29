@@ -1,31 +1,51 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom'
 import Header from '../../components/Header';
 import Title from '../../components/Title';
 import { FiPlusCircle } from 'react-icons/fi';
+import api from '../../services/api';
 import { toast } from 'react-toastify';
+import { getDataAtualFormatada } from '../../utils/utils';
 import './new.css';
-import firebase from '../../services/firebaseConnection';
 
 export default function New() {
 
-    const [clientes, setClientes] = useState([]);
+    const [clientes, setClienteList]               = useState([]);
     const [loadingClientes, setLoadingClientes] = useState(true);
-    const [clienteSelecionado, setClienteSelecionado] = useState(0);
-    const [assunto, setAssunto] = useState('Suporte');
-    const [status, setStatus] = useState('Aberto');
+
+    const [cliente, setCliente]         = useState();
+    const [assunto, setAssunto]         = useState('SUPORTE');
+    const [status, setStatus]           = useState('ABERTO');
     const [complemento, setComplemento] = useState('');
 
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function loadClientes() {
-          
+            api.get('/clientes').then(response => {
+                setClienteList(response.data);
+                setCliente(response.data[0].id);
+                setLoadingClientes(false);
+            });
         }
         loadClientes();
     }, []);
 
     async function handleChamado(e) {
         e.preventDefault();
-       
+        api
+            .post('/chamados', {
+                clienteId : cliente,
+                assunto: assunto,
+                status: status,
+                complemento: complemento,
+            })
+            .then(_  => {
+                toast('Chamado cadastrado com sucesso!')
+             })
+            .catch(_ => toast('Erro ao cadastrar o chamado!'));
+
+        
     }
 
     return (
@@ -38,24 +58,22 @@ export default function New() {
                 </Title>
 
                 <div className="container">
-
                     <form onSubmit={(e) => { handleChamado(e) }} className="form-profile">
                         <label>Cliente</label>
                         {loadingClientes ?
                             <input type="text" value="Carregando..." />
-                            : <select value={clienteSelecionado} onChange={(e) => setClienteSelecionado(e.target.value)}>
-                                {clientes.map((item, index) => {
-                                    return (<option key={item.id} value={index}>{item.nome}</option>);
+                            : <select value={cliente} onChange={(e) => setCliente(e.target.value)}>
+                                {clientes.map(item => {
+                                    return (<option key={item.id} value={item.id}>{item.nome}</option>);
                                 })}
                             </select>
                         }
 
-
                         <label>Assunto</label>
                         <select value={assunto} onChange={(e) => setAssunto(e.target.value)}>
-                            <option value="Suporte">Suporte</option>
-                            <option value="Financeiro">Financeiro</option>
-                            <option value="Visita">Visita</option>
+                            <option value="SUPORTE">Suporte</option>
+                            <option value="FINANCEIRO">Financeiro</option>
+                            <option value="VISITA">Visita</option>
                         </select>
 
                         <label>Status</label>
@@ -63,33 +81,35 @@ export default function New() {
                             <input
                                 type="radio"
                                 name="radio"
-                                value="Aberto"
+                                value="ABERTO"
                                 onChange={(e) => setStatus(e.target.value)}
-                                checked={status === "Aberto"} />
+                                checked={status === "ABERTO"} />
                             <span>Em Aberto</span>
 
                             <input
                                 type="radio"
                                 name="radio"
-                                value="Progresso"
+                                value="ANDAMENTO"
                                 onChange={(e) => setStatus(e.target.value)}
-                                checked={status === "Progresso"} />
-                            <span>Em Progresso</span>
+                                checked={status === "ANDAMENTO"} />
+                            <span>Em Endamento</span>
 
                             <input
                                 type="radio"
                                 name="radio"
-                                value="Atendido"
+                                value="ATENDIDO"
                                 onChange={(e) => setStatus(e.target.value)}
-                                checked={status === "Atendido"} />
+                                checked={status === "ATENDIDO"} />
                             <span>Atendido</span>
                         </div>
+                        
                         <label>Complemento</label>
-                        <textarea type="text"
-                            placeholder="Descreva seu problema aqui"
+                        <textarea 
+                            type="text"
+                            placeholder="Descreva seu problema aqui..."
                             value={complemento}
-                            onChange={(e) => setComplemento(e.target.value)} />
-
+                            onChange={(e) => setComplemento(e.target.value)}
+                        />
                         <button type="submit">Registrar</button>
                     </form>
 

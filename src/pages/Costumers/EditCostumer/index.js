@@ -11,17 +11,18 @@ function EditCostumer({ setOpenModal, clienteId, user }) {
 
 
   useEffect(() => {
-    async function loadCliente() {
-      api
-        .get(`/clientes/${clienteId}`)
-        .then(response => {
-          nome.current.value     = response.data.nome;
-          cnpj.current.value     = response.data.cnpj;
-          endereco.current.value = response.data.endereco;
-        });
-    }
     loadCliente();
   }, []);
+
+  async function loadCliente() {
+    api
+      .get(`/clientes/${clienteId}`)
+      .then(response => {
+        nome.current.value     = response.data.nome;
+        cnpj.current.value     = response.data.cnpj;
+        endereco.current.value = response.data.endereco;
+      });
+  }
 
    const handleSubmit = (e) => {
     e.preventDefault();

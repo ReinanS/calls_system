@@ -65,3 +65,9 @@ form h1{
     margin-bottom: 0.5em;
     color: #181e2c;
 }
+
+p {
+    text-align: center;
+    margin-top: 20px;
+    color: red;
+}
